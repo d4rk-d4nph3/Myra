@@ -1,7 +1,5 @@
 # Myra
 
-[![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://nodesource.com/products/nsolid)
-
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
 Myra is an python based modular automatic report generator of pcap files giving summaries of packets as ensemble as well according to each layer.
@@ -9,11 +7,6 @@ Myra is an python based modular automatic report generator of pcap files giving 
   - Pcap parser based upon Scapy
   - Summary Report generator
   - Modular
-
-# New Features!
-
-  - Import a HTML file and watch it magically convert to Markdown
-  - Drag and drop images (requires your Dropbox account be linked)
 
 ### Installation
 Myra requires Scapy as dependency to run.
