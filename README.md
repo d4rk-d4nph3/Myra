@@ -37,6 +37,13 @@ Myra currently supports the following plugins.
 | DNS report | - |
 | Transport report | - |
 
+### Currently
+<img width="563" alt="Screen Shot 2020-04-18 at 13 20 18" src="https://user-images.githubusercontent.com/61026070/79631318-53c99580-8178-11ea-96c0-1346e43ad055.png">
+<img width="1022" alt="Screen Shot 2020-04-18 at 13 20 36" src="https://user-images.githubusercontent.com/61026070/79631319-55935900-8178-11ea-9d01-7c33d73bcb36.png">
+<img width="913" alt="Screen Shot 2020-04-18 at 13 20 59" src="https://user-images.githubusercontent.com/61026070/79631322-56c48600-8178-11ea-9dde-c4fadfa81150.png">
+<img width="1052" alt="Screen Shot 2020-04-18 at 13 21 11" src="https://user-images.githubusercontent.com/61026070/79631324-5926e000-8178-11ea-9194-9487f3664fcb.png">
+<img width="1032" alt="Screen Shot 2020-04-18 at 13 21 23" src="https://user-images.githubusercontent.com/61026070/79631326-5af0a380-8178-11ea-90e4-a4c1c27d831e.png">
+
 ### Development
 
 Want to contribute? Great! Hop on.
