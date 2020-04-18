@@ -1,4 +1,3 @@
-from pprint import pprint
 import sys
 import os
 
@@ -16,14 +15,18 @@ def bootstrap():
 def dns_report(packets):
     query_count = 0
     for packet in packets:
-        if packet.haslayer(DNSRR):  # We're only interested packets with a DNS Round Robin layer
+        if packet.haslayer(DNSRR):
+            # Filtering packets with a DNS Round Robin layer. 
             if isinstance(packet.an, DNSRR):
                 query_count += 1
-                print(packet.an.rrname.decode().strip('.')) # Converting to unicode and stripping the root '.'
+                print(packet.an.rrname.decode().strip('.')) 
+                # Converting to unicode and stripping the root '.'
 
     print('\nTotal number of DNS Queries made is ' + str(query_count) + '\n')
 
 def ip_report(packets):
+    src_ip = []
+    dst_ip = []
     unique_src_ip = []
     unique_dst_ip = []
     unique_src_ip_count = 0
@@ -31,11 +34,11 @@ def ip_report(packets):
 
     for packet in packets:
         if packet.haslayer(IP):
-            unique_src_ip.append(packet[IP].src)
-            unique_dst_ip.append(packet[IP].dst)
+            src_ip.append(packet[IP].src)
+            dst_ip.append(packet[IP].dst)
 
-    unique_src_ip = set(unique_src_ip)
-    unique_dst_ip = set(unique_dst_ip)
+    unique_src_ip = set(src_ip)
+    unique_dst_ip = set(dst_ip)
 
     print('V----- Unique Source IPs -----V\n')
     print(unique_src_ip)
@@ -52,10 +55,14 @@ def transport_report(packets):
     tcp_dst_port = []
     udp_src_port = []
     udp_dst_port = []
-    unique_src_port = {}
-    unique_dst_port = {}
-    src_port_count = 0
-    dst_port_count = 0
+    unique_tcp_src_port = {}
+    unique_tcp_dst_port = {}
+    unique_udp_src_port = {}
+    unique_udp_dst_port = {}
+    tcp_src_port_count = 0
+    tcp_dst_port_count = 0
+    udp_src_port_count = 0
+    udp_dst_port_count = 0
     tcp_count = 0
     udp_count = 0
 
@@ -92,6 +99,29 @@ def transport_report(packets):
     print('\nV----- Unique UDP Destination Ports -----V\n')
     print(unique_udp_dst_port)
 
+def main():
+    print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
+
+    print('Initiating Bootstraping Process to Dump Summary Report........\n')
+    bootstrap()
+    print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
+    print('####### Summary of packets has been successfuly written in {} #######\n'.format(output_summary_file))
+
+    print('Reading pcap file......')
+    packets = rdpcap(input_pcap_file)   # Read PCAP file.
+    packet_count = len(packets)
+
+    print('The numbers of packets in this pcap file is ' + str(packet_count) + '\n')
+
+    print('Generating DNS Report.....\n')
+    dns_report(packets)
+
+    print('Generating IP Layer Report....\n')
+    ip_report(packets)
+
+    print('Generating Transport Layer Report....\n')
+    transport_report(packets)
+
 
 if len(sys.argv) not in [3, 4]:
     print('''
@@ -122,24 +152,6 @@ print('''
     '´¨               ¨'                   `*ª'´                 '·-·'       `' · -':::''      '\::\;'            '\;'  '
                                             '                                                 `¨'                   
 ''')
-print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
 
-print('Initiating Bootstraping Process to Dump Summary Report........\n')
-bootstrap()
-print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
-print('####### Summary of packets has been successfuly written in {} #######\n'.format(output_summary_file))
-
-print('Reading pcap file......')
-packets = rdpcap(input_pcap_file)   # Read PCAP file.
-packet_count = len(packets)
-
-print('The numbers of packets in this pcap file is ' + str(packet_count) + '\n')
-
-print('Generating DNS Report.....\n')
-dns_report(packets)
-
-print('Generating IP Layer Report....\n')
-ip_report(packets)
-
-print('Generating Transport Layer Report....\n')
-transport_report(packets)
+if __name__ == '__main__':
+    main()
