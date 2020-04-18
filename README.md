@@ -9,7 +9,7 @@ Myra is an python based modular automatic report generator of pcap files giving 
   - Modular
 
 ### Notice
-This is the master branch which is stable. Please checkout the develop branch for new features.
+This is the develop branch which is unstable and is being actively worked on. 
 
 ### Installation
 Myra requires Scapy as dependency to run.
