@@ -1,7 +1,12 @@
+from collections import Counter
+from datetime import datetime
 import sys
 import os
 
+import matplotlib.pyplot as plt
+from matplotlib.dates import date2num
 from scapy.all import *
+
 
 def generate_summary(input_pcap_file):
     packets = rdpcap(input_pcap_file)   # Read PCAP file. 
@@ -23,6 +28,43 @@ def dns_report(packets):
                 # Converting to unicode and stripping the root '.'
 
     print('\nTotal number of DNS Queries made is ' + str(query_count) + '\n')
+
+def arp_report(packets):
+    arp_count = 0
+    src_arp_mac = []
+    src_arp_ip = []
+    req_arp_ip = []
+    req_arp_ts = []
+    unique_src_arp_mac = {}
+    unique_src_arp_ip = {}
+    unique_req_arp_ip = {}
+
+    for packet in packets:
+        if packet.haslayer(ARP):
+            arp_count += 1
+            if packet[ARP].op == 1:  # ARP Request
+                src_arp_mac.append(packet[ARP].hwsrc)
+                src_arp_ip.append(packet[ARP].psrc)
+                req_arp_ip.append(packet[ARP].pdst)
+                packet_ts = datetime.fromtimestamp(packet.time)
+                req_arp_ts.append(packet_ts)
+
+    unique_src_arp_mac = set(src_arp_mac)
+    unique_src_arp_ip = set(src_arp_ip)
+    unique_req_arp_ip = set(req_arp_ip)
+    # req_arp_ip_dist = Counter(req_arp_ip)
+    # src_arp_ip_dist = Counter(src_arp_ip)
+    # src_arp_mac_dist = Counter(src_arp_mac)
+    # print(req_arp_ip_dist)
+    # print(src_arp_ip_dist)
+    # print(src_arp_mac_dist)
+    # print(req_arp_ts)
+    # plt.eventplot(req_arp_ts, lineoffset=0, color='g', linewidths=0.7)
+    # plt.ylim(0,1)
+    # plt.tick_params(labelbottom=False)
+    dates = date2num(req_arp_ts)
+    plt.plot_date(dates, [1]*len(dates))
+    plt.show()
 
 def ip_report(packets):
     src_ip = []
@@ -102,10 +144,10 @@ def transport_report(packets):
 def main():
     print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
 
-    print('Initiating Bootstraping Process to Dump Summary Report........\n')
-    bootstrap()
-    print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
-    print('####### Summary of packets has been successfuly written in {} #######\n'.format(output_summary_file))
+    # print('Initiating Bootstraping Process to Dump Summary Report........\n')
+    # bootstrap()
+    # print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
+    # print('####### Summary of packets has been successfuly written in {} #######\n'.format(output_summary_file))
 
     print('Reading pcap file......')
     packets = rdpcap(input_pcap_file)   # Read PCAP file.
@@ -113,14 +155,17 @@ def main():
 
     print('The numbers of packets in this pcap file is ' + str(packet_count) + '\n')
 
-    print('Generating DNS Report.....\n')
-    dns_report(packets)
+    # print('Generating DNS Report.....\n')
+    # dns_report(packets)
 
-    print('Generating IP Layer Report....\n')
-    ip_report(packets)
+    # print('Generating IP Layer Report....\n')
+    # ip_report(packets)
 
-    print('Generating Transport Layer Report....\n')
-    transport_report(packets)
+    # print('Generating Transport Layer Report....\n')
+    # transport_report(packets)
+
+    print('Generating ARP Report....\n')
+    arp_report(packets)
 
 
 if len(sys.argv) not in [3, 4]:
