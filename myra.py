@@ -17,6 +17,14 @@ def bootstrap():
                                 script_name, input_pcap_file, 
                                 output_summary_file, output_summary_file))
 
+def plot_ts(ts_data):
+    dates = date2num(ts_data)
+    plt.plot_date(
+        dates, [1]*len(dates), marker="|", markersize=150)
+    plt.ylim(0.97,1.2)
+    plt.show()
+    # I know this is cheating. But seems to be the only way.
+    
 def dns_report(packets):
     query_count = 0
     for packet in packets:
@@ -52,6 +60,7 @@ def arp_report(packets):
     unique_src_arp_mac = set(src_arp_mac)
     unique_src_arp_ip = set(src_arp_ip)
     unique_req_arp_ip = set(req_arp_ip)
+    plot_ts(req_arp_ts)
     # req_arp_ip_dist = Counter(req_arp_ip)
     # src_arp_ip_dist = Counter(src_arp_ip)
     # src_arp_mac_dist = Counter(src_arp_mac)
@@ -62,9 +71,10 @@ def arp_report(packets):
     # plt.eventplot(req_arp_ts, lineoffset=0, color='g', linewidths=0.7)
     # plt.ylim(0,1)
     # plt.tick_params(labelbottom=False)
-    dates = date2num(req_arp_ts)
-    plt.plot_date(dates, [1]*len(dates))
-    plt.show()
+    # dates = date2num(req_arp_ts)
+    # plt.plot_date(dates, [1]*len(dates), marker="|", markersize=150)
+    # plt.ylim(0.97,1.2)
+    # plt.show()
 
 def ip_report(packets):
     src_ip = []
