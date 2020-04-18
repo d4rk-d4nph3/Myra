@@ -1,13 +1,17 @@
 from collections import Counter
 from datetime import datetime
-import sys
+import json
 import os
+import sys
+from urllib.request import urlopen
 
+import animation
 import matplotlib.pyplot as plt
 from matplotlib.dates import date2num
 from scapy.all import *
 
 
+@animation.wait('Bootstrapping')
 def bootstrap():
     os.system('python3 {} {} {} bstrap > {}'.format(
                                 script_name, input_pcap_file, 
@@ -17,16 +21,22 @@ def generate_summary(input_pcap_file):
     packets = rdpcap(input_pcap_file)   # Read PCAP file. 
     print(packets.summary())
 
-def plot_ts(ts_data, title):
+def plot_ts(ts_data, title, color):
     dates = date2num(ts_data)
     plt.plot_date(
-        dates, [1]*len(dates), marker="|", markersize=150)
+        dates, [1]*len(dates), marker="|", markersize=150, color=color)
     plt.ylim(0.97,1.2)
     plt.title(title)
     plt.yticks([])
 
     plt.show()
     # I know this is cheating. But seems to be the only way.
+
+def ip_info(ip_addr):
+    url = 'https://ipinfo.io/' + ip_addr + '/json'
+    result = urlopen(url)
+    data = json.load(result)
+    print(data.get('country'))
 
 def dns_report(packets):
     query_count = 0
@@ -42,7 +52,7 @@ def dns_report(packets):
                 # Converting to unicode and stripping the root '.'
 
     print('\nTotal number of DNS Queries made is ' + str(query_count) + '\n')
-    plot_ts(dns_req_ts, 'DNS Flow')
+    plot_ts(dns_req_ts, 'DNS Flow', '#ea7369')
 
 def arp_report(packets):
     arp_count = 0
@@ -75,7 +85,7 @@ def arp_report(packets):
     print(src_arp_mac_dist)
     print(req_arp_ts)
     
-    plot_ts(req_arp_ts, 'ARP Flow')
+    plot_ts(req_arp_ts, 'ARP Flow', "#7d3ac1")
 
 def ip_report(packets):
     ip_ts = []
@@ -109,7 +119,7 @@ def ip_report(packets):
                     + str(unique_dst_ip_count) + '\n')
 
     
-    plot_ts(ip_ts, 'IP Flow')
+    plot_ts(ip_ts, 'IP Flow', '#af4bce')
 
 def transport_report(packets):
     tcp_src_port = []
@@ -166,8 +176,8 @@ def transport_report(packets):
     print('\nV----- Unique UDP Destination Ports -----V\n')
     print(unique_udp_dst_port)
 
-    plot_ts(tcp_ts, 'TCP Flow')
-    plot_ts(udp_ts, 'UDP Flow')
+    plot_ts(tcp_ts, 'TCP Flow', '#db4cb2')
+    plot_ts(udp_ts, 'UDP Flow' , '#ea7369')
 
 def main():
     print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
@@ -177,10 +187,13 @@ def main():
     print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
     print('####### Summary of packets has been successfuly written in {} #######\n'.format(output_summary_file))
 
-    print('Reading pcap file......')
-    packets = rdpcap(input_pcap_file)   # Read PCAP file.
-    packet_count = len(packets)
+    
+    a = animation.Wait(text = 'Reading pcap file')
+    a.start()
+    packets = rdpcap(input_pcap_file)  
+    a.stop()
 
+    packet_count = len(packets)
     print('The numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
 

@@ -9,22 +9,14 @@ Myra is an python based modular automatic report generator of pcap files giving 
   - Modular
 
 ### Notice
-This is the develop branch which is unstable and is being actively worked on. 
+This is the develop branch which is very unstable and is being actively worked on. If only the features are stable enough then, they are merged to master.
 
-### Installation
-Myra requires Scapy as dependency to run.
+### Dependencies
+Myra requires the following dependencies:
+- animation
+- matplotlib
+- scapy
 
-```sh
-$ cd myra
-$ pip3 install scapy
-```
- Recommended for Dev Environments
-
-```sh
-$ python3 -m venv .venv
-$ source .venv/bin/activate
-$ pip3 install scapy
-```
 
 ### Plugins
 
@@ -55,6 +47,7 @@ Want to contribute? Great! Hop on.
  - Support output in HTML and PDF.
  - Write Unit Tests
  - Multi-threading support for efficiency.
+ - Integrate Threat Intelligence Feeds.
 
 License
 ----
