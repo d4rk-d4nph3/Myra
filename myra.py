@@ -6,8 +6,10 @@ import sys
 from urllib.request import urlopen
 
 import animation
+import geopandas
 import matplotlib.pyplot as plt
 from matplotlib.dates import date2num
+import pandas as pd
 from scapy.all import *
 
 
@@ -32,11 +34,63 @@ def plot_ts(ts_data, title, color):
     plt.show()
     # I know this is cheating. But seems to be the only way.
 
+@animation.wait('Plotting GeoLocation Data')
+def plot_geoloc(src_location):
+    latitude = []
+    longitude = []
+
+    for each_pairs in src_location:
+        latitude.append(float(each_pairs.split(',')[0]))
+        longitude.append(float(each_pairs.split(',')[1]))
+    df = pd.DataFrame(
+                {'Latitude': latitude,
+                'Longitude': longitude})
+
+    gdf = geopandas.GeoDataFrame(
+                         df, geometry = geopandas.points_from_xy(
+                                             df.Longitude, df.Latitude))
+
+    world = geopandas.read_file(
+                geopandas.datasets.get_path(
+                                    'naturalearth_lowres'))	
+
+    ax = world.plot(color='white', edgecolor='black')
+    gdf.plot(ax=ax, color='green')
+    plt.show()
+
 def ip_info(ip_addr):
     url = 'https://ipinfo.io/' + ip_addr + '/json'
     result = urlopen(url)
     data = json.load(result)
-    print(data.get('country'))
+    return data.get('country'), data.get('loc')
+
+@animation.wait('Resolving IP addresses to Location')
+def generate_ip_info(src_ip_list, dst_ip_list):
+    resolved_src_country = []
+    resolved_dst_country = []
+    src_location = []
+    unique_src_country = {}
+    unique_dst_country = {}
+
+    for each_ip in src_ip_list:
+        src_country, locale = ip_info(each_ip)
+        if src_country is not None:
+            resolved_src_country.append(src_country)
+            src_location.append(locale)
+
+    for each_ip in dst_ip_list:
+        dst_country = ip_info(each_ip)
+        if dst_country is not None:
+            resolved_dst_country.append(dst_country)
+    
+    unique_src_country = set(resolved_src_country)
+    unique_dst_country = set(resolved_dst_country)
+    print('\nUnique Source Countries are ')
+    print(unique_dst_country)
+    print('Unique Destination Countries are ')
+    print(unique_dst_country)
+
+    plot_geoloc(src_location)
 
 def dns_report(packets):
     query_count = 0
@@ -87,6 +141,7 @@ def arp_report(packets):
     
     plot_ts(req_arp_ts, 'ARP Flow', "#7d3ac1")
 
+@animation.wait('Generating IP Report')
 def ip_report(packets):
     ip_ts = []
     src_ip = []
@@ -106,7 +161,7 @@ def ip_report(packets):
     unique_src_ip = set(src_ip)
     unique_dst_ip = set(dst_ip)
 
-    print('V----- Unique Source IPs -----V\n')
+    print('\nV----- Unique Source IPs -----V\n')
     print(unique_src_ip)
     print('\nV----- Unique Destination IPs -----V\n')
     print(unique_dst_ip)
@@ -119,6 +174,8 @@ def ip_report(packets):
                     + str(unique_dst_ip_count) + '\n')
 
     
+    generate_ip_info(unique_src_ip, unique_dst_ip)
+
     plot_ts(ip_ts, 'IP Flow', '#af4bce')
 
 def transport_report(packets):
@@ -183,7 +240,7 @@ def main():
     print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
 
     print('Initiating Bootstraping Process to Dump Summary Report........\n')
-    bootstrap()
+    # bootstrap()
     print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
     print('####### Summary of packets has been successfuly written in {} #######\n'.format(output_summary_file))
 
@@ -197,17 +254,18 @@ def main():
     print('The numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
 
-    print('Generating DNS Report.....\n')
-    dns_report(packets)
+    # ip_info('1.1.1.1')
+    # print('Generating DNS Report.....\n')
+    # dns_report(packets)
 
     print('Generating IP Layer Report....\n')
     ip_report(packets)
 
-    print('Generating Transport Layer Report....\n')
-    transport_report(packets)
+    # print('Generating Transport Layer Report....\n')
+    # transport_report(packets)
 
-    print('Generating ARP Report....\n')
-    arp_report(packets)
+    # print('Generating ARP Report....\n')
+    # arp_report(packets)
 
 
 if len(sys.argv) not in [3, 4]:
