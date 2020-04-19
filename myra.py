@@ -15,20 +15,17 @@ import pandas as pd
 from scapy.all import *
 
 
-@animation.wait('Bootstrapping')
-def bootstrap():
-    os.system('python3 {} {} {} bstrap > {}'.format(
-                    script_name, input_pcap_file, 
-                    output_summary_file, output_summary_file))
+def generate_summary(packets, output_file):
+    with open(output_file, 'w') as fp:
+        try:
+            original_stdout = sys.stdout
+            sys.stdout = fp
+            fp.write(packets.summary(
+                        prn=lambda x: str(x.time) + ' ' + x.summary()))
 
-def generate_summary(input_pcap_file):
-    try:
-        packets = rdpcap(input_pcap_file)   # Read PCAP file. 
-        print(packets.summary(
-                prn=lambda x: str(x.time) + ' ' + x.summary()))
-    except:
-        exit()
-    
+        except TypeError as e:
+            sys.stdout = original_stdout
+
 
 def pdf_init():
     pdf = FPDF(orientation='P', unit='mm', format='A4')
@@ -336,10 +333,6 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
 
 def main():
     print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
-
-    print('Initiating Bootstraping Process to Dump Summary Report..\n')
-    bootstrap()
-    print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
     
     try:
         packets = rdpcap(input_pcap_file)  
@@ -347,6 +340,8 @@ def main():
         print('The input pcap file does not exist!!\n'
               'Exiting the program...')
         exit()
+
+    generate_summary(packets, output_summary_file)
 
     print('####### Summary of packets has been successfuly written in {}'
                                   ' #######'.format(output_summary_file))
@@ -391,10 +386,8 @@ def main():
 
 if len(sys.argv) not in [3, 4]:
     print('''
-**** Usage: python3 myra.py <pcap_file> <summary_output_file> [bstrap] ****
+**** Usage: python3 myra.py <pcap_file> <summary_output_file> ****
             
-        Please don't use the bstrap flag. It is only used internally
-        by the script during bootstrapping.
         ''')
     exit()
 
@@ -408,10 +401,6 @@ blacklist_ads_file = 'blacklist/blacklist.ads'
 blacklist_trackers_file = 'blacklist/blacklist.trackers'
 blacklist_coinminer_file = 'blacklist/blacklist.coinminer'
 blacklist_corona_file = 'blacklist/blacklist.corona'
-
-if len(sys.argv) == 4 and sys.argv[3] == 'bstrap':
-    generate_summary(input_pcap_file)
-    exit()
 
 print('''
 
