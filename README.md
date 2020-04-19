@@ -6,31 +6,32 @@
 [![License](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://shields.io/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 
-Myra is an python based modular automatic report generator of pcap files giving summaries of packets as ensemble as well according to each layer.
+Myra is a python based modular automatic report generator of pcap files giving summaries of packets as ensemble as well according to each layer.
 
   - Pcap parser based upon Scapy
   - Summary Report generator
+  - Support for threat intel feeds
   - Modular
 
 ## Logo
 <img align="center" width="112" alt="Screen Shot 2020-04-19 at 17 38 55" src="https://user-images.githubusercontent.com/61026070/79687106-b6985b00-8264-11ea-976a-02d87a5ae2d1.png">
 
 ### Notice
-This is the master branch which is stable. Please checkout the develop branch for new features.
+This is the master branch which is made to be more stable. Please checkout the develop branch for bleeding edge code.
 
 ### Installation
 Myra requires Scapy as dependency to run.
 
 ```sh
 $ cd myra
-$ pip3 install scapy
+$ pip3 install -r requirements.txt
 ```
  Recommended for Dev Environments
 
 ```sh
 $ python3 -m venv .venv
 $ source .venv/bin/activate
-$ pip3 install scapy
+$ pip3 install -r requirements.txt
 ```
 
 ### Plugins
@@ -57,7 +58,4 @@ Want to contribute? Great! Hop on.
  - [ ] Multi-threading support for efficiency.
  - [x] Integrate Threat Intelligence 
 
-License
-----
-Apache Software License V2
 
