@@ -371,6 +371,7 @@ def main():
     p4.join() 
     '''
     threat_intel(src_ip, dst_ip, dns_query)
+    print('<-------------- Completed -------------->')
 
 if len(sys.argv) not in [3, 4]:
     print('''
