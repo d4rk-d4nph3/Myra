@@ -1,6 +1,6 @@
 # Myra
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
-[! Made](https://img.shields.io/static/v1?label=License&message=Apache%202&color=blueviolet?style=flat&logo=python)
+[! [Made]](https://img.shields.io/static/v1?label=MADE%20WITH&message=python&color=blueviolet?style=flat&logo=python)
 [![PyPI implementation](https://img.shields.io/pypi/implementation/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 [![License](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://shields.io/)
