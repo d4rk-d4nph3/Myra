@@ -1,7 +1,7 @@
 # Myra
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
-<img align="C" width="112" alt="Screen Shot 2020-04-19 at 17 38 55" src="https://user-images.githubusercontent.com/61026070/79687106-b6985b00-8264-11ea-976a-02d87a5ae2d1.png">
+<img align="center" width="112" alt="Screen Shot 2020-04-19 at 17 38 55" src="https://user-images.githubusercontent.com/61026070/79687106-b6985b00-8264-11ea-976a-02d87a5ae2d1.png">
 Myra is an python based modular automatic report generator of pcap files giving summaries of packets as ensemble as well according to each layer.
 
   - Pcap parser based upon Scapy
