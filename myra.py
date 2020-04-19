@@ -1,11 +1,13 @@
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, date
+import multiprocessing
 import json
 import os
 import sys
 from urllib.request import urlopen
 
 import animation
+from fpdf import FPDF
 import geopandas
 import matplotlib.pyplot as plt
 from matplotlib.dates import date2num
@@ -22,6 +24,16 @@ def bootstrap():
 def generate_summary(input_pcap_file):
     packets = rdpcap(input_pcap_file)   # Read PCAP file. 
     print(packets.summary(prn=lambda x: str(x.time) + ' ' + x.summary()))
+
+def pdf_init():
+    pdf = FPDF(orientation='P', unit='mm', format='A4')
+    pdf.add_page()
+    pdf.set_font("Arial", size = 12)
+    pdf.cell(200, 10, txt="Myra PCAP Report", ln=1, align="C")
+    pdf.set_font_size(8)
+    pdf.cell(200, 10, txt=str(date.today()), ln=1, align="C")
+    pdf.image('myra.png', x=95, y=30, w=30)
+    return pdf
 
 def plot_ts(ts_data, title, color):
     dates = date2num(ts_data)
@@ -241,13 +253,13 @@ def transport_report(packets):
     plot_ts(udp_ts, 'UDP Flow' , '#ea7369')
 
 def main():
-    print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
+    # print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
 
-    print('Initiating Bootstraping Process to Dump Summary Report......\n')
-    bootstrap()
-    print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
-    print('####### Summary of packets has been successfuly written in {}'
-                                  ' #######\n'.format(output_summary_file))
+    # print('Initiating Bootstraping Process to Dump Summary Report......\n')
+    # bootstrap()
+    # print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
+    # print('####### Summary of packets has been successfuly written in {}'
+                                #   ' #######\n'.format(output_summary_file))
 
     
     a = animation.Wait(text = 'Reading pcap file')
@@ -258,18 +270,35 @@ def main():
     packet_count = len(packets)
     print('The numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
-
+    
+    # pdf = pdf_init()
+    # pdf.output('sample.pdf')
     print('Generating DNS Report.....\n')
     dns_report(packets)
 
     print('Generating IP Layer Report....\n')
     ip_report(packets)
-
+    
     print('Generating Transport Layer Report....\n')
     transport_report(packets)
 
     print('Generating ARP Report....\n')
     arp_report(packets)
+
+    '''     - Multiprocessing works but is producing error -
+    p1 = multiprocessing.Process(target=ip_report, args=(packets, )) 
+    p2 = multiprocessing.Process(target=transport_report, args=(packets, )) 
+    p3 = multiprocessing.Process(target=arp_report, args=(packets, )) 
+    p4 = multiprocessing.Process(target=dns_report, args=(packets, ))
+    p1.start()
+    p2.start()
+    p3.start()
+    p4.start()
+    p1.join()
+    p2.join()
+    p3.join()
+    p4.join() 
+    '''
 
 
 if len(sys.argv) not in [3, 4]:
