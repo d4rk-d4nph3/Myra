@@ -11,6 +11,9 @@ Myra is an python based modular automatic report generator of pcap files giving 
   - Summary Report generator
   - Modular
 
+## Logo
+<img align="center" width="112" alt="Screen Shot 2020-04-19 at 17 38 55" src="https://user-images.githubusercontent.com/61026070/79687106-b6985b00-8264-11ea-976a-02d87a5ae2d1.png">
+
 ### Notice
 This is the develop branch which is very unstable and is being actively worked on. If only the features are stable enough then, they are merged to master.
 
