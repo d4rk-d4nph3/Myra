@@ -18,14 +18,17 @@ from scapy.all import *
 @animation.wait('Bootstrapping')
 def bootstrap():
     os.system('python3 {} {} {} bstrap > {}'.format(
-                                script_name, input_pcap_file, 
-                                output_summary_file, output_summary_file))
-
+                    script_name, input_pcap_file, 
+                    output_summary_file, output_summary_file))
 
 def generate_summary(input_pcap_file):
-    packets = rdpcap(input_pcap_file)   # Read PCAP file. 
-    print(packets.summary(prn=lambda x: str(x.time) + ' ' + x.summary()))
-
+    try:
+        packets = rdpcap(input_pcap_file)   # Read PCAP file. 
+        print(packets.summary(
+                prn=lambda x: str(x.time) + ' ' + x.summary()))
+    except:
+        exit()
+    
 
 def pdf_init():
     pdf = FPDF(orientation='P', unit='mm', format='A4')
@@ -64,7 +67,7 @@ def plot_geoloc(src_location):
 
     gdf = geopandas.GeoDataFrame(
                          df, geometry = geopandas.points_from_xy(
-                                             df.Longitude, df.Latitude))
+                                        df.Longitude, df.Latitude))
 
     world = geopandas.read_file(
                 geopandas.datasets.get_path(
@@ -261,7 +264,7 @@ def transport_report(packets):
     print('V----- Unique UDP Source Ports -----V\n')
     print(unique_udp_src_port)
     print('\nV----- Unique UDP Destination Ports -----V\n')
-    print(unique_udp_dst_port)
+    print(unique_udp_dst_port,'\n')
 
     plot_ts(tcp_ts, 'TCP Flow', '#db4cb2')
     plot_ts(udp_ts, 'UDP Flow' , '#ea7369')
@@ -283,60 +286,73 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
     blacklist_coin_miner_count = 0
     blacklist_corona_count = 0
 
-    blacklist_ip_set = set(
-                        map(str.strip, open(blacklist_ip_file)))
-    blacklist_ad_domain_set = set(
-                        map(str.strip, open(blacklist_ads_file)))
-    blacklist_trackers_set = set(
-                        map(str.strip, open(blacklist_trackers_file)))
-    blacklist_coin_miner_set = set(
-                        map(str.strip, open(blacklist_coinminer_file)))
-    blacklist_corona_set = set(
-                        map(str.strip, open(blacklist_corona_file)))
-    
-    blacklist_src_ip = matcher(
+    try:
+        blacklist_ip_set = set(
+                            map(str.strip, open(
+                                            blacklist_ip_file)))
+        blacklist_ad_domain_set = set(
+                            map(str.strip, open(
+                                            blacklist_ads_file)))
+        blacklist_trackers_set = set(
+                            map(str.strip, open(
+                                            blacklist_trackers_file)))
+        blacklist_coin_miner_set = set(
+                            map(str.strip, open(
+                                            blacklist_coinminer_file)))
+        blacklist_corona_set = set(
+                            map(str.strip, open(
+                                            blacklist_corona_file)))
+        
+        blacklist_src_ip = matcher(
                             src_ip_set, blacklist_ip_set)
-    blacklist_dst_ip = matcher(
-                            dst_ip_set, blacklist_ip_set)    
-    blacklist_ad_domain = matcher(
-                            domain_set, blacklist_ad_domain_set)
-    blacklist_trackers = matcher(
-                            domain_set, blacklist_trackers_set)
-    blacklist_coin_miner = matcher(
-                            domain_set, blacklist_coin_miner_set)
-    blacklist_corona = matcher(
-                            domain_set, blacklist_corona_set)
+        blacklist_dst_ip = matcher(
+                                dst_ip_set, blacklist_ip_set)    
+        blacklist_ad_domain = matcher(
+                                domain_set, blacklist_ad_domain_set)
+        blacklist_trackers = matcher(
+                                domain_set, blacklist_trackers_set)
+        blacklist_coin_miner = matcher(
+                                domain_set, blacklist_coin_miner_set)
+        blacklist_corona = matcher(
+                                domain_set, blacklist_corona_set)
 
-    print('Blacklisted Source IP match -> ' 
-                    + str(len(blacklist_src_ip)))
-    print('Blacklisted Destination IP match -> ' 
-                    + str(len(blacklist_dst_ip)))
-    print('Blacklisted Ad Server Domain match -> '
-                    + str(len(blacklist_ad_domain)))
-    print('Blacklisted Agressive Trackers Domain match -> '
-                    + str(len(blacklist_trackers)))
-    print('Blacklisted Coin Miner Domain match -> ' 
-                    + str(len(blacklist_coin_miner)))
-    print('Blacklisted Corona Phising Domain match -> ' 
-                    + str(len(blacklist_corona)))
+        print('Blacklisted Source IP match -> ' 
+                        + str(len(blacklist_src_ip)))
+        print('Blacklisted Destination IP match -> ' 
+                        + str(len(blacklist_dst_ip)))
+        print('Blacklisted Ad Server Domain match -> '
+                        + str(len(blacklist_ad_domain)))
+        print('Blacklisted Agressive Trackers Domain match -> '
+                        + str(len(blacklist_trackers)))
+        print('Blacklisted Coin Miner Domain match -> ' 
+                        + str(len(blacklist_coin_miner)))
+        print('Blacklisted Corona Phising Domain match -> ' 
+                        + str(len(blacklist_corona)))
 
+    except FileNotFoundError:
+        print('One of the Threat Intel Files doesnot exist!!\n'
+              'Threat Intel process is skipped...')
+    
 
 def main():
     print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
 
-    print('Initiating Bootstraping Process to Dump Summary Report......\n')
+    print('Initiating Bootstraping Process to Dump Summary Report..\n')
     bootstrap()
     print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
-    print('####### Summary of packets has been successfuly written in {}'
-                                  ' #######\n'.format(output_summary_file))
     
-    a = animation.Wait(text = 'Reading pcap file')
-    a.start()
-    packets = rdpcap(input_pcap_file)  
-    a.stop()
+    try:
+        packets = rdpcap(input_pcap_file)  
+    except FileNotFoundError:
+        print('The input pcap file does not exist!!\n'
+              'Exiting the program...')
+        exit()
+
+    print('####### Summary of packets has been successfuly written in {}'
+                                  ' #######'.format(output_summary_file))
 
     packet_count = len(packets)
-    print('The numbers of packets in this pcap file is '
+    print('\nThe numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
     
     # TODO  PDF Generation 
@@ -371,17 +387,22 @@ def main():
     p4.join() 
     '''
     threat_intel(src_ip, dst_ip, dns_query)
-    print('<-------------- Completed -------------->')
+
 
 if len(sys.argv) not in [3, 4]:
     print('''
-****   Usage: python3 myra.py <pcap_file> <summary_output_file> [bstrap]   ****
+**** Usage: python3 myra.py <pcap_file> <summary_output_file> [bstrap] ****
+            
+        Please don't use the bstrap flag. It is only used internally
+        by the script during bootstrapping.
         ''')
     exit()
 
 script_name = sys.argv[0]
 input_pcap_file = sys.argv[1]
 output_summary_file = sys.argv[2]
+
+# Threat Intel Feeds
 blacklist_ip_file = 'blacklist/blacklist.ip'
 blacklist_ads_file = 'blacklist/blacklist.ads'
 blacklist_trackers_file = 'blacklist/blacklist.trackers'
