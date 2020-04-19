@@ -49,12 +49,13 @@ Myra currently supports the following plugins.
 Want to contribute? Great! Hop on.
 
 ### Todos
- - Add support for more layers such as ARP.
- - Generate Top 10 list for each layer depending upon count.
- - Generate Plots of statistics.
- - Support output in HTML and PDF.
- - Write Unit Tests
- - Multi-threading support for efficiency.
+ - [x] Add support for more layers such as ARP.
+ - [ ] Generate Top 10 list for each layer depending upon count.
+ - [ ] Generate Plots of statistics.
+ - [ ] Support output in HTML and PDF.
+ - [ ] Write Unit Tests
+ - [ ] Multi-threading support for efficiency.
+ - [x] Integrate Threat Intelligence 
 
 License
 ----
