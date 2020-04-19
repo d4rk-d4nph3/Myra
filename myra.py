@@ -21,9 +21,11 @@ def bootstrap():
                                 script_name, input_pcap_file, 
                                 output_summary_file, output_summary_file))
 
+
 def generate_summary(input_pcap_file):
     packets = rdpcap(input_pcap_file)   # Read PCAP file. 
     print(packets.summary(prn=lambda x: str(x.time) + ' ' + x.summary()))
+
 
 def pdf_init():
     pdf = FPDF(orientation='P', unit='mm', format='A4')
@@ -35,6 +37,7 @@ def pdf_init():
     pdf.image('myra.png', x=95, y=30, w=30)
     return pdf
 
+
 def plot_ts(ts_data, title, color):
     dates = date2num(ts_data)
     plt.plot_date(
@@ -45,6 +48,7 @@ def plot_ts(ts_data, title, color):
 
     plt.show()
     # I know this is cheating. But seems to be the only way.
+
 
 @animation.wait('Plotting GeoLocation Data')
 def plot_geoloc(src_location):
@@ -70,11 +74,13 @@ def plot_geoloc(src_location):
     gdf.plot(ax=ax, color='green')
     plt.show()
 
+
 def ip_info(ip_addr):
     url = 'https://ipinfo.io/' + ip_addr + '/json'
     result = urlopen(url)
     data = json.load(result)
     return data.get('country'), data.get('loc')
+
 
 @animation.wait('Resolving IP addresses to Location')
 def generate_ip_info(src_ip_list, dst_ip_list):
@@ -106,9 +112,12 @@ def generate_ip_info(src_ip_list, dst_ip_list):
 
     plot_geoloc(dst_location)
 
+
 def dns_report(packets):
     query_count = 0
     dns_req_ts = []
+    dns_query = []
+
     for packet in packets:
         if packet.haslayer(DNSRR):
             # Filtering packets with a DNS Round Robin layer. 
@@ -116,13 +125,16 @@ def dns_report(packets):
                 query_count += 1
                 packet_ts = datetime.fromtimestamp(packet.time)
                 dns_req_ts.append(packet_ts)
-                print(packet.an.rrname.decode().strip('.')) 
+                print(packet.an.rrname.decode().strip('.'))
+                dns_query.append(packet.an.rrname.decode().strip('.'))
                 # Converting to unicode and stripping the root '.'
 
     print('\nTotal number of DNS Queries made is '
                                      + str(query_count) + '\n')
     
-    plot_ts(dns_req_ts, 'DNS Flow', '#ea7369')
+    # plot_ts(dns_req_ts, 'DNS Flow', '#ea7369')
+    return dns_query
+
 
 def arp_report(packets):
     arp_count = 0
@@ -157,6 +169,7 @@ def arp_report(packets):
     
     plot_ts(req_arp_ts, 'ARP Flow', "#7d3ac1")
 
+
 @animation.wait('Generating IP Report')
 def ip_report(packets):
     ip_ts = []
@@ -190,9 +203,10 @@ def ip_report(packets):
                     + str(unique_dst_ip_count) + '\n')
 
     
-    generate_ip_info(unique_src_ip, unique_dst_ip)
+    # generate_ip_info(unique_src_ip, unique_dst_ip)
+    # plot_ts(ip_ts, 'IP Flow', '#af4bce')
+    return unique_src_ip, unique_dst_ip
 
-    plot_ts(ip_ts, 'IP Flow', '#af4bce')
 
 def transport_report(packets):
     tcp_src_port = []
@@ -252,15 +266,69 @@ def transport_report(packets):
     plot_ts(tcp_ts, 'TCP Flow', '#db4cb2')
     plot_ts(udp_ts, 'UDP Flow' , '#ea7369')
 
+
+def matcher(source_set, blacklist_set):
+    match_list = []
+
+    for each_candidate in source_set:
+        if each_candidate in blacklist_set:
+            match_list.append(each_candidate)
+    return match_list
+
+
+def threat_intel(src_ip_set, dst_ip_set, domain_set):
+    blacklist_ip_count = 0
+    blacklist_ad_domain_count = 0
+    blacklist_trackers_count = 0
+    blacklist_coin_miner_count = 0
+    blacklist_corona_count = 0
+
+    blacklist_ip_set = set(
+                        map(str.strip, open(blacklist_ip_file)))
+    blacklist_ad_domain_set = set(
+                        map(str.strip, open(blacklist_ads_file)))
+    blacklist_trackers_set = set(
+                        map(str.strip, open(blacklist_trackers_file)))
+    blacklist_coin_miner_set = set(
+                        map(str.strip, open(blacklist_coinminer_file)))
+    blacklist_corona_set = set(
+                        map(str.strip, open(blacklist_corona_file)))
+    
+    blacklist_src_ip = matcher(
+                            src_ip_set, blacklist_ip_set)
+    blacklist_dst_ip = matcher(
+                            dst_ip_set, blacklist_ip_set)    
+    blacklist_ad_domain = matcher(
+                            domain_set, blacklist_ad_domain_set)
+    blacklist_trackers = matcher(
+                            domain_set, blacklist_trackers_set)
+    blacklist_coin_miner = matcher(
+                            domain_set, blacklist_coin_miner_set)
+    blacklist_corona = matcher(
+                            domain_set, blacklist_corona_set)
+
+    print('Blacklisted Source IP match -> ' 
+                    + str(len(blacklist_src_ip)))
+    print('Blacklisted Destination IP match -> ' 
+                    + str(len(blacklist_dst_ip)))
+    print('Blacklisted Ad Server Domain match -> '
+                    + str(len(blacklist_ad_domain)))
+    print('Blacklisted Agressive Trackers Domain match -> '
+                    + str(len(blacklist_trackers)))
+    print('Blacklisted Coin Miner Domain match -> ' 
+                    + str(len(blacklist_coin_miner)))
+    print('Blacklisted Corona Phising Domain match -> ' 
+                    + str(len(blacklist_corona)))
+
+
 def main():
-    # print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
+    print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
 
-    # print('Initiating Bootstraping Process to Dump Summary Report......\n')
-    # bootstrap()
-    # print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
-    # print('####### Summary of packets has been successfuly written in {}'
-                                #   ' #######\n'.format(output_summary_file))
-
+    print('Initiating Bootstraping Process to Dump Summary Report......\n')
+    bootstrap()
+    print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
+    print('####### Summary of packets has been successfuly written in {}'
+                                  ' #######\n'.format(output_summary_file))
     
     a = animation.Wait(text = 'Reading pcap file')
     a.start()
@@ -271,13 +339,15 @@ def main():
     print('The numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
     
+    # TODO  PDF Generation 
     # pdf = pdf_init()
     # pdf.output('sample.pdf')
+    
     print('Generating DNS Report.....\n')
-    dns_report(packets)
+    dns_query = dns_report(packets)
 
     print('Generating IP Layer Report....\n')
-    ip_report(packets)
+    src_ip, dst_ip = ip_report(packets)
     
     print('Generating Transport Layer Report....\n')
     transport_report(packets)
@@ -286,6 +356,7 @@ def main():
     arp_report(packets)
 
     '''     - Multiprocessing works but is producing error -
+               Disabling it for now. Will work in it later
     p1 = multiprocessing.Process(target=ip_report, args=(packets, )) 
     p2 = multiprocessing.Process(target=transport_report, args=(packets, )) 
     p3 = multiprocessing.Process(target=arp_report, args=(packets, )) 
@@ -299,7 +370,7 @@ def main():
     p3.join()
     p4.join() 
     '''
-
+    threat_intel(src_ip, dst_ip, dns_query)
 
 if len(sys.argv) not in [3, 4]:
     print('''
@@ -310,6 +381,11 @@ if len(sys.argv) not in [3, 4]:
 script_name = sys.argv[0]
 input_pcap_file = sys.argv[1]
 output_summary_file = sys.argv[2]
+blacklist_ip_file = 'blacklist/blacklist.ip'
+blacklist_ads_file = 'blacklist/blacklist.ads'
+blacklist_trackers_file = 'blacklist/blacklist.trackers'
+blacklist_coinminer_file = 'blacklist/blacklist.coinminer'
+blacklist_corona_file = 'blacklist/blacklist.corona'
 
 if len(sys.argv) == 4 and sys.argv[3] == 'bstrap':
     generate_summary(input_pcap_file)

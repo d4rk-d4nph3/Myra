@@ -15,6 +15,7 @@ This is the develop branch which is very unstable and is being actively worked o
 Myra requires the following dependencies:
 - animation
 - descartes
+- fpdf
 - geopandas
 - matplotlib
 - pandas
@@ -31,6 +32,7 @@ Myra currently supports the following plugins.
 | IP report | - |
 | DNS report | - |
 | Transport report | - |
+| Threat Intelligence report | - |
 
 ### Currently
 #### Torrent Activity Captured in this short capture file (Just the first pic)
@@ -52,7 +54,6 @@ Want to contribute? Great! Hop on.
  - Support output in HTML and PDF.
  - Write Unit Tests
  - Multi-threading support for efficiency.
- - Integrate Threat Intelligence Feeds.
 
 License
 ----
