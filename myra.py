@@ -21,7 +21,7 @@ def bootstrap():
 
 def generate_summary(input_pcap_file):
     packets = rdpcap(input_pcap_file)   # Read PCAP file. 
-    print(packets.summary())
+    print(packets.summary(prn=lambda x: str(x.time) + ' ' + x.summary()))
 
 def plot_ts(ts_data, title, color):
     dates = date2num(ts_data)
@@ -69,6 +69,7 @@ def generate_ip_info(src_ip_list, dst_ip_list):
     resolved_src_country = []
     resolved_dst_country = []
     src_location = []
+    dst_location = []
     unique_src_country = {}
     unique_dst_country = {}
 
@@ -79,9 +80,10 @@ def generate_ip_info(src_ip_list, dst_ip_list):
             src_location.append(locale)
 
     for each_ip in dst_ip_list:
-        dst_country = ip_info(each_ip)
+        dst_country, locale = ip_info(each_ip)
         if dst_country is not None:
             resolved_dst_country.append(dst_country)
+            dst_location.append(locale)
     
     unique_src_country = set(resolved_src_country)
     unique_dst_country = set(resolved_dst_country)
@@ -90,7 +92,7 @@ def generate_ip_info(src_ip_list, dst_ip_list):
     print('Unique Destination Countries are ')
     print(unique_dst_country)
 
-    plot_geoloc(src_location)
+    plot_geoloc(dst_location)
 
 def dns_report(packets):
     query_count = 0
@@ -105,7 +107,9 @@ def dns_report(packets):
                 print(packet.an.rrname.decode().strip('.')) 
                 # Converting to unicode and stripping the root '.'
 
-    print('\nTotal number of DNS Queries made is ' + str(query_count) + '\n')
+    print('\nTotal number of DNS Queries made is '
+                                     + str(query_count) + '\n')
+    
     plot_ts(dns_req_ts, 'DNS Flow', '#ea7369')
 
 def arp_report(packets):
@@ -239,10 +243,11 @@ def transport_report(packets):
 def main():
     print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
 
-    print('Initiating Bootstraping Process to Dump Summary Report........\n')
-    # bootstrap()
+    print('Initiating Bootstraping Process to Dump Summary Report......\n')
+    bootstrap()
     print('<<<<<<<<<< Bootstrapping Process Completed >>>>>>>>>>\n')
-    print('####### Summary of packets has been successfuly written in {} #######\n'.format(output_summary_file))
+    print('####### Summary of packets has been successfuly written in {}'
+                                  ' #######\n'.format(output_summary_file))
 
     
     a = animation.Wait(text = 'Reading pcap file')
@@ -254,18 +259,17 @@ def main():
     print('The numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
 
-    # ip_info('1.1.1.1')
-    # print('Generating DNS Report.....\n')
-    # dns_report(packets)
+    print('Generating DNS Report.....\n')
+    dns_report(packets)
 
     print('Generating IP Layer Report....\n')
     ip_report(packets)
 
-    # print('Generating Transport Layer Report....\n')
-    # transport_report(packets)
+    print('Generating Transport Layer Report....\n')
+    transport_report(packets)
 
-    # print('Generating ARP Report....\n')
-    # arp_report(packets)
+    print('Generating ARP Report....\n')
+    arp_report(packets)
 
 
 if len(sys.argv) not in [3, 4]:
