@@ -28,3 +28,7 @@ jobs:
       run: |
         pip install pytest
         pytest
+    - name: Run
+      run: |
+        python myra.py example.pcap output.txt
+        pytest
