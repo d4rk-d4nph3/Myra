@@ -1,5 +1,5 @@
 # Myra
-[![Made with](https://img.shields.io/static/v1?label=Made%20with&message=python&color=00fa21)](https://www.python.org)
+[![Made with](https://img.shields.io/static/v1?label=Made%20with&message=python&color=af4bce)](https://www.python.org)
 [![experimental](https://img.shields.io/static/v1?label=stability&message=experimental&color=critical)](http://github.com/badges/stability-badges)
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 [![License](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://shields.io/)
