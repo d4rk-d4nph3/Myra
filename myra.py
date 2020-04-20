@@ -15,6 +15,15 @@ import pandas as pd
 from scapy.all import *
 
 
+@animation.wait('Reading pcap file')
+def read_pcap(input_pcap_file):
+    try:
+        packets = rdpcap(input_pcap_file)  
+        return packets
+    except FileNotFoundError:
+        return None
+
+
 def generate_summary(packets, output_file):
     with open(output_file, 'w') as fp:
         try:
@@ -334,9 +343,8 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
 def main():
     print('<<<<<<<<<< Initialization Completed >>>>>>>>>>\n')
     
-    try:
-        packets = rdpcap(input_pcap_file)  
-    except FileNotFoundError:
+    packets = read_pcap(input_pcap_file)
+    if packets is None:
         print('The input pcap file does not exist!!\n'
               'Exiting the program...')
         exit()
@@ -355,7 +363,7 @@ def main():
     # pdf.output('sample.pdf')
     
     print('Generating DNS Report.....\n')
-    dns_query = dns_report(packets)
+    dns_query_list = dns_report(packets)
 
     print('Generating IP Layer Report....\n')
     src_ip, dst_ip = ip_report(packets)
@@ -381,7 +389,7 @@ def main():
     p3.join()
     p4.join() 
     '''
-    threat_intel(src_ip, dst_ip, dns_query)
+    threat_intel(src_ip, dst_ip, dns_query_list)
 
 
 if len(sys.argv) not in [3, 4]:
