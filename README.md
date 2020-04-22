@@ -54,14 +54,14 @@ Myra currently supports the following plugins.
 Want to contribute? Great! Hop on.
 
 ### Todos
- - Add support for more layers such as ARP.
- - Generate Top 10 list for each layer depending upon count.
- - Generate Plots of statistics.
- - Support output in HTML and PDF.
- - Write Unit Tests
- - Multi-threading support for efficiency.
+ - [x] Add support for more layers such as ARP.
+ - [ ] Generate Top 10 list for each layer depending upon count.
+ - [ ] Generate varieties of plots for statistics such as sankey, doughnut, tree, etc.
+ - [ ] Support output in HTML and PDF.
+ - [ ] Write Unit Tests
+ - [ ] Implement Micro-services architecture for concurrency.
 
 License
 ----
-Apache Software License V2
+Apache Software License V2 (Maybe). Subject to change in future.
 
