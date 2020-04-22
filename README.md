@@ -17,6 +17,9 @@ Myra is an python based modular automatic report generator of pcap files giving 
 ### Notice
 This is the develop branch which is very unstable and is being actively worked on. If only the features are stable enough then, they are merged to master.
 
+### NOTICE TO CONTRIBUTERS
+There is another branch named zero which is created for integration of PyZMQ. I will work on that branch for now and will only review pull requests for develop brances. 
+ 
 ### Dependencies
 Myra requires the following dependencies:
 - animation
@@ -55,6 +58,7 @@ Want to contribute? Great! Hop on.
 
 ### Todos
  - [x] Add support for more layers such as ARP.
+ - [ ] Replace that ugly coordinate map plot with a beautiful Choropleth.
  - [ ] Generate Top 10 list for each layer depending upon count.
  - [ ] Generate varieties of plots for statistics such as sankey, doughnut, tree, etc.
  - [ ] Support output in HTML and PDF.
