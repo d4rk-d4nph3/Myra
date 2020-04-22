@@ -18,8 +18,8 @@ Myra is an python based modular automatic report generator of pcap files giving 
 This is the develop branch which is very unstable and is being actively worked on. If only the features are stable enough then, they are merged to master.
 
 ### NOTICE TO CONTRIBUTERS
-There is another branch named zero which is created for integration of PyZMQ. I will work on that branch for now and will only review pull requests for develop brances. 
- 
+There is another branch named zero which is created for integration of PyZMQ. I will work on that branch for now and will only review pull requests for develop branch.
+
 ### Dependencies
 Myra requires the following dependencies:
 - animation
