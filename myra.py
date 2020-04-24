@@ -5,6 +5,7 @@ import os
 import sys
 
 import animation
+import folium
 from fpdf import FPDF
 from geoip2 import database
 import geopandas
@@ -366,10 +367,11 @@ def main():
     print('\nThe numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
     
+    ''' 
     TODO  PDF Generation 
     pdf = pdf_init()
     pdf.output('sample.pdf')
-    
+    '''
     print('Generating DNS Report.....\n')
     dns_query_list = dns_report(packets)
 
@@ -398,14 +400,14 @@ input_pcap_file = sys.argv[1]
 output_summary_file = sys.argv[2]
 
 # For GeoIP query
-GEOIP_DB = 'GeoLite2-City.mmd'
+GEOIP_DB = 'Resources/GeoIP/GeoLite2-City.mmd'
 
 # Threat Intel Feeds
-BLACKLIST_IP_DB = 'blacklist/blacklist.ip'
-BLACKLIST_AD_DB = 'blacklist/blacklist.ads'
-BLACKLIST_TRACKER_DB = 'blacklist/blacklist.trackers'
-BLACKLIST_COINMINER_DB = 'blacklist/blacklist.coinminer'
-BLACKLIST_COVID_DOMAIN_DB = 'blacklist/blacklist.corona'
+BLACKLIST_IP_DB = 'Resources/Blacklist/blacklist.ip'
+BLACKLIST_AD_DB = 'Resources/Blacklist/blacklist.ads'
+BLACKLIST_TRACKER_DB = 'Resources/Blacklist/blacklist.trackers'
+BLACKLIST_COINMINER_DB = 'Resources/Blacklist/blacklist.coinminer'
+BLACKLIST_COVID_DOMAIN_DB = 'Resources/Blacklist/blacklist.corona'
 
 print('''
 
