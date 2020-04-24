@@ -1,13 +1,12 @@
 from collections import Counter
 from datetime import datetime, date
-import multiprocessing
 import json
 import os
 import sys
-from urllib.request import urlopen
 
 import animation
 from fpdf import FPDF
+from geoip2 import database
 import geopandas
 import matplotlib.pyplot as plt
 from matplotlib.dates import date2num
@@ -30,8 +29,8 @@ def generate_summary(packets, output_file):
             original_stdout = sys.stdout
             sys.stdout = fp
             fp.write(packets.summary(
-                        prn=lambda x: str(x.time) + ' ' + x.summary()))
-
+                        prn=lambda x: str(x.time) 
+                                       + ' ' + x.summary()))
         except TypeError as e:
             sys.stdout = original_stdout
 
@@ -84,15 +83,23 @@ def plot_geoloc(src_location):
     plt.show()
 
 
-def ip_info(ip_addr):
-    url = 'https://ipinfo.io/' + ip_addr + '/json'
-    result = urlopen(url)
-    data = json.load(result)
-    return data.get('country'), data.get('loc')
+def query_geoip(ip_list):
+    reader = database.Reader(GEOIP_DB)
+    resolved_src_country = []
+
+    for each_ip in ip_list:
+        try:
+            result = reader.city(each_ip)
+            resolved_src_country.append(
+                                    result.country.iso_code)
+        except:
+            continue    # Skip private IPs
+
+    return resolved_src_country
 
 
 @animation.wait('Resolving IP addresses to Location')
-def generate_ip_info(src_ip_list, dst_ip_list):
+def obtain_geoip_info(src_ip_list, dst_ip_list):
     resolved_src_country = []
     resolved_dst_country = []
     src_location = []
@@ -100,14 +107,15 @@ def generate_ip_info(src_ip_list, dst_ip_list):
     unique_src_country = {}
     unique_dst_country = {}
 
+    query_geoip(src_ip_list)
     for each_ip in src_ip_list:
-        src_country, locale = ip_info(each_ip)
+        src_country, locale = query_geoip(each_ip)
         if src_country is not None:
             resolved_src_country.append(src_country)
             src_location.append(locale)
 
     for each_ip in dst_ip_list:
-        dst_country, locale = ip_info(each_ip)
+        dst_country, locale = query_geoip(each_ip)
         if dst_country is not None:
             resolved_dst_country.append(dst_country)
             dst_location.append(locale)
@@ -212,7 +220,7 @@ def ip_report(packets):
                     + str(unique_dst_ip_count) + '\n')
 
     
-    # generate_ip_info(unique_src_ip, unique_dst_ip)
+    obtain_geoip_info(unique_src_ip, unique_dst_ip)
     # plot_ts(ip_ts, 'IP Flow', '#af4bce')
     return unique_src_ip, unique_dst_ip
 
@@ -295,19 +303,19 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
     try:
         blacklist_ip_set = set(
                             map(str.strip, open(
-                                            blacklist_ip_file)))
+                                            BLACKLIST_IP_DB)))
         blacklist_ad_domain_set = set(
                             map(str.strip, open(
-                                            blacklist_ads_file)))
-        blacklist_trackers_set = set(
+                                            BLACKLIST_AD_DB)))
+        blacklist_tracker_set = set(
                             map(str.strip, open(
-                                            blacklist_trackers_file)))
-        blacklist_coin_miner_set = set(
+                                            BLACKLIST_TRACKER_DB)))
+        blacklist_coinminer_set = set(
                             map(str.strip, open(
-                                            blacklist_coinminer_file)))
-        blacklist_corona_set = set(
+                                            BLACKLIST_COINMINER_DB)))
+        blacklist_covid_domain_set = set(
                             map(str.strip, open(
-                                            blacklist_corona_file)))
+                                            BLACKLIST_COVID_DOMAIN_DB)))
         
         blacklist_src_ip = matcher(
                             src_ip_set, blacklist_ip_set)
@@ -315,11 +323,11 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
                                 dst_ip_set, blacklist_ip_set)    
         blacklist_ad_domain = matcher(
                                 domain_set, blacklist_ad_domain_set)
-        blacklist_trackers = matcher(
+        blacklist_tracker = matcher(
                                 domain_set, blacklist_trackers_set)
-        blacklist_coin_miner = matcher(
+        blacklist_coinminer = matcher(
                                 domain_set, blacklist_coin_miner_set)
-        blacklist_corona = matcher(
+        blacklist_corona_domain = matcher(
                                 domain_set, blacklist_corona_set)
 
         print('Blacklisted Source IP match -> ' 
@@ -332,7 +340,7 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
                         + str(len(blacklist_trackers)))
         print('Blacklisted Coin Miner Domain match -> ' 
                         + str(len(blacklist_coin_miner)))
-        print('Blacklisted Corona Phising Domain match -> ' 
+        print('Blacklisted COVID-19 Phising Domain match -> ' 
                         + str(len(blacklist_corona)))
 
     except FileNotFoundError:
@@ -358,9 +366,9 @@ def main():
     print('\nThe numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
     
-    # TODO  PDF Generation 
-    # pdf = pdf_init()
-    # pdf.output('sample.pdf')
+    TODO  PDF Generation 
+    pdf = pdf_init()
+    pdf.output('sample.pdf')
     
     print('Generating DNS Report.....\n')
     dns_query_list = dns_report(packets)
@@ -374,26 +382,12 @@ def main():
     print('Generating ARP Report....\n')
     arp_report(packets)
 
-    '''     - Multiprocessing works but is producing error -
-               Disabling it for now. Will work in it later
-    p1 = multiprocessing.Process(target=ip_report, args=(packets, )) 
-    p2 = multiprocessing.Process(target=transport_report, args=(packets, )) 
-    p3 = multiprocessing.Process(target=arp_report, args=(packets, )) 
-    p4 = multiprocessing.Process(target=dns_report, args=(packets, ))
-    p1.start()
-    p2.start()
-    p3.start()
-    p4.start()
-    p1.join()
-    p2.join()
-    p3.join()
-    p4.join() 
-    '''
     threat_intel(src_ip, dst_ip, dns_query_list)
-
+    
 
 if len(sys.argv) not in [3, 4]:
     print('''
+
 **** Usage: python3 myra.py <pcap_file> <summary_output_file> ****
             
         ''')
@@ -403,12 +397,15 @@ script_name = sys.argv[0]
 input_pcap_file = sys.argv[1]
 output_summary_file = sys.argv[2]
 
+# For GeoIP query
+GEOIP_DB = 'GeoLite2-City.mmd'
+
 # Threat Intel Feeds
-blacklist_ip_file = 'blacklist/blacklist.ip'
-blacklist_ads_file = 'blacklist/blacklist.ads'
-blacklist_trackers_file = 'blacklist/blacklist.trackers'
-blacklist_coinminer_file = 'blacklist/blacklist.coinminer'
-blacklist_corona_file = 'blacklist/blacklist.corona'
+BLACKLIST_IP_DB = 'blacklist/blacklist.ip'
+BLACKLIST_AD_DB = 'blacklist/blacklist.ads'
+BLACKLIST_TRACKER_DB = 'blacklist/blacklist.trackers'
+BLACKLIST_COINMINER_DB = 'blacklist/blacklist.coinminer'
+BLACKLIST_COVID_DOMAIN_DB = 'blacklist/blacklist.corona'
 
 print('''
 
