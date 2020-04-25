@@ -107,23 +107,26 @@ def generate_choropleth(src_country, title):
     choro_map = folium.Map(tiles = "cartodbdark_matter", 
                            location = [32.635588, 4.879570], 
                            zoom_start = 2.4)
+    try:
+        folium.Choropleth(
+                    geo_data = GEO_JSON,
+                    name = 'choropleth',
+                    data = geo_ip_data,
+                    columns = ['Country', 'Count'],
+                    key_on = 'feature.properties.iso_a2',
+                    fill_color = "Purples",
+                    fill_opacity = 0.9,
+                    line_opacity = 0.3,
+                    nan_fill_color = '#110c11',
+                    nan_fill_opacity = 0.4,
+                    legend_name = title
+                    ).add_to(choro_map)
+        folium.LayerControl().add_to(choro_map)
+        choro_map.save('Choropleth-{}.html'.format(title))
 
-    folium.Choropleth(
-                geo_data = GEO_JSON,
-                name = 'choropleth',
-                data = geo_ip_data,
-                columns = ['Country', 'Count'],
-                key_on = 'feature.properties.iso_a2',
-                fill_color = "Purples",
-                fill_opacity = 0.9,
-                line_opacity = 0.3,
-                nan_fill_color = '#110c11',
-                nan_fill_opacity = 0.4,
-                legend_name = title
-                ).add_to(choro_map)
-
-    folium.LayerControl().add_to(choro_map)
-    choro_map.save('Choropleth-{}.html'.format(title))
+    except FileNotFoundError:
+        print('GeoJSON File not found!!\n'
+              'Choropleth is not plotted...')
 
 
 def generate_heatmap(src_locale, title):
