@@ -7,10 +7,10 @@ import sys
 import animation
 import folium
 from folium.plugins import HeatMap
-
 from geoip2 import database
 
 import matplotlib.pyplot as plt
+
 from matplotlib.dates import date2num
 import pandas as pd
 
@@ -41,6 +41,7 @@ def generate_summary(packets, output_file):
 
 def plot_ts(ts_data, title, color):
     dates = date2num(ts_data)
+    plt.style.use('dark_background')
     plt.plot_date(
         dates, [1]*len(dates), marker = "|", 
         markersize = 150, color = color)
@@ -157,7 +158,7 @@ def dns_report(packets):
     print('\nTotal number of DNS Queries made is '
                                      + str(query_count) + '\n')
     
-    # plot_ts(dns_req_ts, 'DNS Flow', '#ea7369')
+    plot_ts(dns_req_ts, 'DNS Flow', '#4d4dff')
     return dns_query
 
 
@@ -192,7 +193,7 @@ def arp_report(packets):
     print(src_arp_mac_dist)
     print(req_arp_ts)
     
-    plot_ts(req_arp_ts, 'ARP Flow', "#7d3ac1")
+    plot_ts(req_arp_ts, 'ARP Flow', "#c71585")
 
 
 @animation.wait('Generating IP Report')
@@ -296,8 +297,8 @@ def transport_report(packets):
     print('\nV----- Unique UDP Destination Ports -----V\n')
     print(unique_udp_dst_port,'\n')
 
-    plot_ts(tcp_ts, 'TCP Flow', '#db4cb2')
-    plot_ts(udp_ts, 'UDP Flow' , '#ea7369')
+    plot_ts(tcp_ts, 'TCP Flow', '#bf00ff')
+    plot_ts(udp_ts, 'UDP Flow' , '#6f00ff')
 
 
 def matcher(source_set, blacklist_set):
@@ -326,7 +327,7 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
         blacklist_tracker_set = set(
                             map(str.strip, open(
                                             BLACKLIST_TRACKER_DB)))
-        blacklist_coinminer_set = set(
+        blacklist_coin_miner_set = set(
                             map(str.strip, open(
                                             BLACKLIST_COINMINER_DB)))
         blacklist_covid_domain_set = set(
@@ -340,11 +341,11 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
         blacklist_ad_domain = matcher(
                                 domain_set, blacklist_ad_domain_set)
         blacklist_tracker = matcher(
-                                domain_set, blacklist_trackers_set)
-        blacklist_coinminer = matcher(
+                                domain_set, blacklist_tracker_set)
+        blacklist_coin_miner = matcher(
                                 domain_set, blacklist_coin_miner_set)
-        blacklist_corona_domain = matcher(
-                                domain_set, blacklist_corona_set)
+        blacklist_covid_domain = matcher(
+                                domain_set, blacklist_covid_domain_set)
 
         print('Blacklisted Source IP match -> ' 
                         + str(len(blacklist_src_ip)))
@@ -353,11 +354,11 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
         print('Blacklisted Ad Server Domain match -> '
                         + str(len(blacklist_ad_domain)))
         print('Blacklisted Agressive Trackers Domain match -> '
-                        + str(len(blacklist_trackers)))
+                        + str(len(blacklist_tracker)))
         print('Blacklisted Coin Miner Domain match -> ' 
                         + str(len(blacklist_coin_miner)))
         print('Blacklisted COVID-19 Phising Domain match -> ' 
-                        + str(len(blacklist_corona)))
+                        + str(len(blacklist_covid_domain)))
 
     except FileNotFoundError:
         print('One of the Threat Intel Files doesnot exist!!\n'
