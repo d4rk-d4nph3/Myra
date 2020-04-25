@@ -1,17 +1,21 @@
 from collections import Counter
 from datetime import datetime, date
+
 import json
 import os
 import sys
 
 import animation
 import folium
-from fpdf import FPDF
+
 from geoip2 import database
+
 import geopandas
 import matplotlib.pyplot as plt
+
 from matplotlib.dates import date2num
 import pandas as pd
+
 from scapy.all import *
 
 
@@ -34,17 +38,6 @@ def generate_summary(packets, output_file):
                                        + ' ' + x.summary()))
         except TypeError as e:
             sys.stdout = original_stdout
-
-
-def pdf_init():
-    pdf = FPDF(orientation='P', unit='mm', format='A4')
-    pdf.add_page()
-    pdf.set_font("Arial", size = 12)
-    pdf.cell(200, 10, txt="Myra PCAP Report", ln=1, align="C")
-    pdf.set_font_size(8)
-    pdf.cell(200, 10, txt=str(date.today()), ln=1, align="C")
-    pdf.image('myra.png', x=95, y=30, w=30)
-    return pdf
 
 
 def plot_ts(ts_data, title, color):
@@ -85,7 +78,11 @@ def plot_geoloc(src_location):
 
 
 def query_geoip(ip_list):
-    reader = database.Reader(GEOIP_DB)
+    try:
+        reader = database.Reader(GEOIP_DB)
+    except FileNotFoundError:
+        print('The GeoIP DB file does not exist!!i\n'
+              'Exiting..')
     resolved_src_country = []
 
     for each_ip in ip_list:
@@ -367,11 +364,7 @@ def main():
     print('\nThe numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
     
-    ''' 
-    TODO  PDF Generation 
-    pdf = pdf_init()
-    pdf.output('sample.pdf')
-    '''
+    
     print('Generating DNS Report.....\n')
     dns_query_list = dns_report(packets)
 
@@ -385,7 +378,6 @@ def main():
     arp_report(packets)
 
     threat_intel(src_ip, dst_ip, dns_query_list)
-    
 
 if len(sys.argv) not in [3, 4]:
     print('''
