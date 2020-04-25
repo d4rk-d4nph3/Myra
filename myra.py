@@ -411,7 +411,7 @@ output_summary_file = sys.argv[2]
 GEOIP_DB = 'Resources/GeoIP/GeoLite2-City.mmdb'
 
 # * GeoJSON File
-GEO_JSON = 'Resource/GeoJSON/world_mid_res.json'
+GEO_JSON = 'Resources/GeoJSON/world_mid_res.json'
 
 # * Threat Intel Feeds
 BLACKLIST_IP_DB = 'Resources/Blacklist/blacklist.ip'
