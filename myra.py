@@ -1,18 +1,16 @@
 from collections import Counter
 from datetime import datetime, date
-
 import json
 import os
 import sys
 
 import animation
 import folium
+from folium.plugins import HeatMap
 
 from geoip2 import database
 
-import geopandas
 import matplotlib.pyplot as plt
-
 from matplotlib.dates import date2num
 import pandas as pd
 
@@ -33,9 +31,10 @@ def generate_summary(packets, output_file):
         try:
             original_stdout = sys.stdout
             sys.stdout = fp
-            fp.write(packets.summary(
+            fp.write(packets.summary(       
                         prn=lambda x: str(x.time) 
                                        + ' ' + x.summary()))
+            # Modifying lambda function as it didn't return packet time.
         except TypeError as e:
             sys.stdout = original_stdout
 
@@ -43,57 +42,35 @@ def generate_summary(packets, output_file):
 def plot_ts(ts_data, title, color):
     dates = date2num(ts_data)
     plt.plot_date(
-        dates, [1]*len(dates), marker="|", markersize=150, color=color)
+        dates, [1]*len(dates), marker = "|", 
+        markersize = 150, color = color)
     plt.ylim(0.97,1.2)
     plt.title(title)
     plt.yticks([])
 
     plt.show()
-    # I know this is cheating. But seems to be the only way.
-
-
-@animation.wait('Plotting GeoLocation Data')
-def plot_geoloc(src_location):
-    latitude = []
-    longitude = []
-
-    for each_pairs in src_location:
-        latitude.append(float(each_pairs.split(',')[0]))
-        longitude.append(float(each_pairs.split(',')[1]))
-    df = pd.DataFrame(
-                {'Latitude': latitude,
-                'Longitude': longitude})
-
-    gdf = geopandas.GeoDataFrame(
-                         df, geometry = geopandas.points_from_xy(
-                                        df.Longitude, df.Latitude))
-
-    world = geopandas.read_file(
-                geopandas.datasets.get_path(
-                                    'naturalearth_lowres'))	
-
-    ax = world.plot(color='white', edgecolor='black')
-    gdf.plot(ax=ax, color='green')
-    plt.show()
+    # * I know this is cheating. But seems to be the only way.
 
 
 def query_geoip(ip_list):
-    try:
-        reader = database.Reader(GEOIP_DB)
-    except FileNotFoundError:
-        print('The GeoIP DB file does not exist!!i\n'
-              'Exiting..')
     resolved_src_country = []
+    resolved_locale = []
 
     for each_ip in ip_list:
         try:
             result = reader.city(each_ip)
             resolved_src_country.append(
-                                    result.country.iso_code)
+                                  result.country.iso_code)
+            # This returns the ISO 3166 alpha 2 code.
+            resolved_locale.append([result.location.latitude, 
+                                    result.location.longitude])
+            # Each location is returned as array. This is 
+            # done so that this data can be directly fed to 
+            # HeatMap function later.
         except:
             continue    # Skip private IPs
 
-    return resolved_src_country
+    return resolved_src_country, resolved_locale
 
 
 @animation.wait('Resolving IP addresses to Location')
@@ -105,27 +82,57 @@ def obtain_geoip_info(src_ip_list, dst_ip_list):
     unique_src_country = {}
     unique_dst_country = {}
 
-    query_geoip(src_ip_list)
-    for each_ip in src_ip_list:
-        src_country, locale = query_geoip(each_ip)
-        if src_country is not None:
-            resolved_src_country.append(src_country)
-            src_location.append(locale)
+    resolved_src_country, src_locale = query_geoip(src_ip_list)
+    resolved_dst_country, dst_locale  = query_geoip(dst_ip_list)
 
-    for each_ip in dst_ip_list:
-        dst_country, locale = query_geoip(each_ip)
-        if dst_country is not None:
-            resolved_dst_country.append(dst_country)
-            dst_location.append(locale)
-    
     unique_src_country = set(resolved_src_country)
     unique_dst_country = set(resolved_dst_country)
+
     print('\nUnique Source Countries are ')
-    print(unique_dst_country)
+    print(unique_src_country)
     print('Unique Destination Countries are ')
     print(unique_dst_country)
 
-    plot_geoloc(dst_location)
+    return (resolved_src_country, src_locale, 
+            resolved_dst_country, dst_locale)
+
+
+def generate_choropleth(src_country, title):
+    country_counter = dict(Counter(src_country))
+
+    geo_ip_data = pd.DataFrame(list(
+                            country_counter.items()),
+                            columns = ['Country', 'Count'])
+
+    choro_map = folium.Map(tiles = "cartodbdark_matter", 
+                           location = [32.635588, 4.879570], 
+                           zoom_start = 2.4)
+
+    folium.Choropleth(
+                geo_data = GEO_JSON,
+                name = 'choropleth',
+                data = geo_ip_data,
+                columns = ['Country', 'Count'],
+                key_on = 'feature.properties.iso_a2',
+                fill_color = "Purples",
+                fill_opacity = 0.9,
+                line_opacity = 0.3,
+                nan_fill_color = '#110c11',
+                nan_fill_opacity = 0.4,
+                legend_name = title
+                ).add_to(choro_map)
+
+    folium.LayerControl().add_to(choro_map)
+    choro_map.save('Choropleth-{}.html'.format(title))
+
+
+def generate_heatmap(src_locale, title):
+    heat_map = folium.Map(tiles = "cartodbdark_matter", 
+                          location = [32.635588, 4.879570], 
+                          zoom_start = 2.4)
+
+    HeatMap(src_locale).add_to(heat_map)
+    heat_map.save('HeatMap-{}.html'.format(title))
 
 
 def dns_report(packets):
@@ -218,8 +225,16 @@ def ip_report(packets):
                     + str(unique_dst_ip_count) + '\n')
 
     
-    obtain_geoip_info(unique_src_ip, unique_dst_ip)
+    (src_country, src_locale, 
+    dst_country, dst_locale) = obtain_geoip_info(src_ip, dst_ip)
     # plot_ts(ip_ts, 'IP Flow', '#af4bce')
+
+    generate_choropleth(src_country, 'Source Countries')
+    generate_choropleth(dst_country, 'Destination Countries')
+    
+    generate_heatmap(src_locale, 'Source Countries')
+    generate_heatmap(dst_locale, 'Destination Countries') 
+    # TODO Multiprocess maps creation.
     return unique_src_ip, unique_dst_ip
 
 
@@ -370,7 +385,7 @@ def main():
 
     print('Generating IP Layer Report....\n')
     src_ip, dst_ip = ip_report(packets)
-    
+
     print('Generating Transport Layer Report....\n')
     transport_report(packets)
 
@@ -378,6 +393,7 @@ def main():
     arp_report(packets)
 
     threat_intel(src_ip, dst_ip, dns_query_list)
+    
 
 if len(sys.argv) not in [3, 4]:
     print('''
@@ -391,15 +407,26 @@ script_name = sys.argv[0]
 input_pcap_file = sys.argv[1]
 output_summary_file = sys.argv[2]
 
-# For GeoIP query
+# * For GeoIP2 API
 GEOIP_DB = 'Resources/GeoIP/GeoLite2-City.mmdb'
 
-# Threat Intel Feeds
+# * GeoJSON File
+GEO_JSON = 'Resource/GeoJSON/world_mid_res.json'
+
+# * Threat Intel Feeds
 BLACKLIST_IP_DB = 'Resources/Blacklist/blacklist.ip'
 BLACKLIST_AD_DB = 'Resources/Blacklist/blacklist.ads'
 BLACKLIST_TRACKER_DB = 'Resources/Blacklist/blacklist.trackers'
 BLACKLIST_COINMINER_DB = 'Resources/Blacklist/blacklist.coinminer'
 BLACKLIST_COVID_DOMAIN_DB = 'Resources/Blacklist/blacklist.corona'
+
+# Creating GeoIP Reader during initialization and using this same object
+# across multiple requests as creation of it is expensive.
+try:
+    reader = database.Reader(GEOIP_DB)
+except FileNotFoundError:
+    print('The GeoIP DB file does not exist!!i\n'
+          'Exiting..')
 
 print('''
 

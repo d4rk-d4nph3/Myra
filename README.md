@@ -62,7 +62,7 @@ Want to contribute? Great! Hop on.
 
 ### Todos
  - [x] Add support for more layers such as ARP.
- - [ ] Replace that ugly coordinate map plot with a beautiful Choropleth.
+ - [x] Replace that ugly coordinate map plot with a beautiful Choropleth.
  - [ ] Generate Top 10 list for each layer depending upon count.
  - [ ] Generate varieties of plots for statistics such as sankey, doughnut, tree, etc.
  - [ ] Support output in HTML and PDF.
