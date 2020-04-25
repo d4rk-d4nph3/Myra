@@ -42,7 +42,11 @@ Myra currently supports the following plugins.
 | Threat Intelligence report | - |
 
 ### Currently
+### Choropleth Map of Source Countries
 <img width="1315" alt="Screen Shot 2020-04-25 at 21 04 42" src="https://user-images.githubusercontent.com/61026070/80283604-83f4d380-8738-11ea-9bc2-73fd8cdf0016.png">
+
+### Heat Map of Source Countries
+<img width="1030" alt="Screen Shot 2020-04-25 at 23 00 15" src="https://user-images.githubusercontent.com/61026070/80286011-a1ca3480-8748-11ea-9c6a-240bc2144837.png">
 
 #### Torrent Activity Captured in this short capture file (Just the first pic)
 <img width="1088" alt="Screen Shot 2020-04-18 at 18 11 31" src="https://user-images.githubusercontent.com/61026070/79637606-a159f880-81a0-11ea-9ab7-9073d0c57102.png">
