@@ -400,7 +400,7 @@ input_pcap_file = sys.argv[1]
 output_summary_file = sys.argv[2]
 
 # For GeoIP query
-GEOIP_DB = 'Resources/GeoIP/GeoLite2-City.mmd'
+GEOIP_DB = 'Resources/GeoIP/GeoLite2-City.mmdb'
 
 # Threat Intel Feeds
 BLACKLIST_IP_DB = 'Resources/Blacklist/blacklist.ip'
