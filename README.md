@@ -43,6 +43,7 @@ Myra currently supports the following plugins.
 
 ### Currently
 <img width="1315" alt="Screen Shot 2020-04-25 at 21 04 42" src="https://user-images.githubusercontent.com/61026070/80283604-83f4d380-8738-11ea-9bc2-73fd8cdf0016.png">
+
 #### Torrent Activity Captured in this short capture file (Just the first pic)
 <img width="1088" alt="Screen Shot 2020-04-18 at 18 11 31" src="https://user-images.githubusercontent.com/61026070/79637606-a159f880-81a0-11ea-9ab7-9073d0c57102.png">
 <img width="980" alt="Screen Shot 2020-04-18 at 13 30 42" src="https://user-images.githubusercontent.com/61026070/79631394-de11f980-8178-11ea-903b-0462c54630f7.png">
