@@ -49,10 +49,10 @@ Myra currently supports the following plugins.
 <img width="1030" alt="Screen Shot 2020-04-25 at 23 00 15" src="https://user-images.githubusercontent.com/61026070/80286011-a1ca3480-8748-11ea-9c6a-240bc2144837.png">
 
 <img width="1134" alt="Screen Shot 2020-04-26 at 12 50 08" src="https://user-images.githubusercontent.com/61026070/80300467-d1b31f80-87bc-11ea-94d9-80b4c0ee40bf.png">
-<img width="823" alt="Screen Shot 2020-04-26 at 00 23 17" src="https://user-images.githubusercontent.com/61026070/80288114-77cb3f00-8755-11ea-9adc-5a79e192e0c8.png">
-<img width="833" alt="Screen Shot 2020-04-26 at 00 23 53" src="https://user-images.githubusercontent.com/61026070/80288116-7d288980-8755-11ea-8983-b818af5e70e5.png">
-<img width="830" alt="Screen Shot 2020-04-26 at 00 24 16" src="https://user-images.githubusercontent.com/61026070/80288122-80bc1080-8755-11ea-961e-3aaeaab561db.png">
-<img width="826" alt="Screen Shot 2020-04-26 at 00 28 09" src="https://user-images.githubusercontent.com/61026070/80288127-8ade0f00-8755-11ea-92e3-d41f858e6a04.png">
+<img width="1130" alt="Screen Shot 2020-04-26 at 00 23 17" src="https://user-images.githubusercontent.com/61026070/80288114-77cb3f00-8755-11ea-9adc-5a79e192e0c8.png">
+<img width="1130" alt="Screen Shot 2020-04-26 at 00 23 53" src="https://user-images.githubusercontent.com/61026070/80288116-7d288980-8755-11ea-8983-b818af5e70e5.png">
+<img width="1130" alt="Screen Shot 2020-04-26 at 00 24 16" src="https://user-images.githubusercontent.com/61026070/80288122-80bc1080-8755-11ea-961e-3aaeaab561db.png">
+<img width="1130" alt="Screen Shot 2020-04-26 at 00 28 09" src="https://user-images.githubusercontent.com/61026070/80288127-8ade0f00-8755-11ea-92e3-d41f858e6a04.png">
 
 ### Development
 
