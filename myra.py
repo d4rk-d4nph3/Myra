@@ -139,6 +139,24 @@ def generate_heatmap(src_locale, title):
     heat_map.save('HeatMap-{}.html'.format(title))
 
 
+def generate_packet_size_plot(packets):
+    ts_list = []
+    packet_size = []
+
+    for pkt in packets:
+        if pkt.haslayer(IP):
+            packet_size.append((pkt[IP].len))
+            packet_ts = datetime.fromtimestamp(pkt.time)
+            ts_list.append(packet_ts)
+
+    plt.style.use('dark_background')
+    plt.ylabel('Bytes')
+    plt.title('IP Packet Size Flow')
+    plt.ylim(0,2000)
+    plt.fill_between(ts_list, payload_size, color="#6f00ff", alpha=0.4)
+    plt.show()
+    
+
 def dns_report(packets):
     query_count = 0
     dns_req_ts = []
@@ -233,11 +251,11 @@ def ip_report(packets):
     dst_country, dst_locale) = obtain_geoip_info(src_ip, dst_ip)
     # plot_ts(ip_ts, 'IP Flow', '#af4bce')
 
-    generate_choropleth(src_country, 'Source Countries')
-    generate_choropleth(dst_country, 'Destination Countries')
+    # generate_choropleth(src_country, 'Source Countries')
+    # generate_choropleth(dst_country, 'Destination Countries')
     
-    generate_heatmap(src_locale, 'Source Countries')
-    generate_heatmap(dst_locale, 'Destination Countries') 
+    # generate_heatmap(src_locale, 'Source Countries')
+    # generate_heatmap(dst_locale, 'Destination Countries') 
     # TODO Multiprocess maps creation.
     return unique_src_ip, unique_dst_ip
 
@@ -349,16 +367,34 @@ def threat_intel(src_ip_set, dst_ip_set, domain_set):
 
         print('Blacklisted Source IP match -> ' 
                         + str(len(blacklist_src_ip)))
+        if len(blacklist_src_ip) != 0:
+            print(blacklist_src_ip)
+
         print('Blacklisted Destination IP match -> ' 
                         + str(len(blacklist_dst_ip)))
+        if len(blacklist_dst_ip) != 0:
+            print(blacklist_dst_ip)
+
         print('Blacklisted Ad Server Domain match -> '
                         + str(len(blacklist_ad_domain)))
+        if len(blacklist_dst_ip) != 0:
+            print(blacklist_ad_domain)
+
         print('Blacklisted Agressive Trackers Domain match -> '
                         + str(len(blacklist_tracker)))
+        if len(blacklist_tracker) != 0:
+            print(blacklist_tracker)
+
         print('Blacklisted Coin Miner Domain match -> ' 
                         + str(len(blacklist_coin_miner)))
+        if len(blacklist_coin_miner) != 0:
+            print(blacklist_coin_miner)
+
         print('Blacklisted COVID-19 Phising Domain match -> ' 
                         + str(len(blacklist_covid_domain)))
+        if len(blacklist_covid_domain) != 0:
+            print(blacklist_covid_domain)
+
 
     except FileNotFoundError:
         print('One of the Threat Intel Files doesnot exist!!\n'
@@ -374,6 +410,7 @@ def main():
               'Exiting the program...')
         exit()
 
+
     generate_summary(packets, output_summary_file)
 
     print('####### Summary of packets has been successfuly written in {}'
@@ -383,18 +420,18 @@ def main():
     print('\nThe numbers of packets in this pcap file is '
                                  + str(packet_count) + '\n')
     
-    
+    # generate_packet_size_plot(packets)
     print('Generating DNS Report.....\n')
     dns_query_list = dns_report(packets)
 
     print('Generating IP Layer Report....\n')
     src_ip, dst_ip = ip_report(packets)
 
-    print('Generating Transport Layer Report....\n')
-    transport_report(packets)
+    # print('Generating Transport Layer Report....\n')
+    # transport_report(packets)
 
-    print('Generating ARP Report....\n')
-    arp_report(packets)
+    # print('Generating ARP Report....\n')
+    # arp_report(packets)
 
     threat_intel(src_ip, dst_ip, dns_query_list)
     
