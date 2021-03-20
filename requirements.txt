@@ -14,7 +14,7 @@ fpdf==1.7.2
 geoip2==3.0.0
 geopandas==0.7.0
 idna==2.9
-Jinja2==2.11.2
+Jinja2==2.11.3
 kiwisolver==1.2.0
 MarkupSafe==1.1.1
 matplotlib==3.2.1
