@@ -20,7 +20,7 @@ MarkupSafe==1.1.1
 matplotlib==3.2.1
 maxminddb==1.5.2
 munch==2.5.0
-numpy==1.18.2
+numpy==1.22.0
 pandas==1.0.3
 plotly==4.6.0
 pygeoip==0.3.2
